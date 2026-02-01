@@ -25,7 +25,8 @@ import {
   auditLog, AuditLog,
   notifications, Notification,
   ministryReports, MinistryReport,
-  faqs, Faq
+  faqs, Faq,
+  adminMenu, AdminMenu, InsertAdminMenu
 } from "../drizzle/schema";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -796,14 +797,74 @@ export async function getDashboardStats() {
   if (!db) return null;
   
   const [userCount] = await db.select({ count: sql<number>`count(*)` }).from(users);
-  const [examCount] = await db.select({ count: sql<number>`count(*)` }).from(exams);
+  const [courseCount] = await db.select({ count: sql<number>`count(*)` }).from(courses).where(eq(courses.isActive, true));
   const [certCount] = await db.select({ count: sql<number>`count(*)` }).from(certificates);
   const [centerCount] = await db.select({ count: sql<number>`count(*)` }).from(examCenters).where(eq(examCenters.isActive, true));
+  const [examinerCount] = await db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.role, 'examiner'));
+  
+  // Esami questo mese
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const [examsThisMonthCount] = await db.select({ count: sql<number>`count(*)` }).from(examSessions)
+    .where(and(
+      sql`${examSessions.examDate} >= ${startOfMonth}`,
+      sql`${examSessions.examDate} <= ${endOfMonth}`
+    ));
   
   return {
     totalUsers: userCount?.count || 0,
-    totalExams: examCount?.count || 0,
+    totalCourses: courseCount?.count || 0,
+    examsThisMonth: examsThisMonthCount?.count || 0,
     totalCertificates: certCount?.count || 0,
-    totalCenters: centerCount?.count || 0
+    totalCenters: centerCount?.count || 0,
+    totalExaminers: examinerCount?.count || 0
   };
+}
+
+
+// ============================================
+// ADMIN MENU QUERIES
+// ============================================
+
+export async function getAdminMenuItems() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(adminMenu).where(eq(adminMenu.isActive, true)).orderBy(asc(adminMenu.sortOrder));
+}
+
+export async function getAllAdminMenuItems() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(adminMenu).orderBy(asc(adminMenu.sortOrder));
+}
+
+export async function createAdminMenuItem(data: Omit<InsertAdminMenu, 'id' | 'createdAt' | 'updatedAt'>) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.insert(adminMenu).values(data);
+  return { id: result[0].insertId };
+}
+
+export async function updateAdminMenuItem(id: number, data: Partial<InsertAdminMenu>) {
+  const db = await getDb();
+  if (!db) return null;
+  await db.update(adminMenu).set(data).where(eq(adminMenu.id, id));
+  return { id };
+}
+
+export async function deleteAdminMenuItem(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  await db.delete(adminMenu).where(eq(adminMenu.id, id));
+  return { id };
+}
+
+export async function reorderAdminMenuItems(items: { id: number; sortOrder: number }[]) {
+  const db = await getDb();
+  if (!db) return null;
+  for (const item of items) {
+    await db.update(adminMenu).set({ sortOrder: item.sortOrder }).where(eq(adminMenu.id, item.id));
+  }
+  return { success: true };
 }

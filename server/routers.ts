@@ -542,6 +542,56 @@ export const appRouter = router({
         return db.getAllExamSessions();
       }),
     }),
+
+    menu: router({
+      list: adminProcedure.query(async () => {
+        return db.getAllAdminMenuItems();
+      }),
+      active: publicProcedure.query(async () => {
+        return db.getAdminMenuItems();
+      }),
+      create: adminProcedure
+        .input(z.object({
+          label: z.string().min(1),
+          path: z.string().min(1),
+          icon: z.string().default("LayoutDashboard"),
+          sortOrder: z.number().default(0),
+          isActive: z.boolean().default(true),
+          requiredRole: z.enum(["admin", "examiner", "user"]).default("admin"),
+          parentId: z.number().nullable().optional(),
+        }))
+        .mutation(async ({ input }) => {
+          return db.createAdminMenuItem(input);
+        }),
+      update: adminProcedure
+        .input(z.object({
+          id: z.number(),
+          label: z.string().optional(),
+          path: z.string().optional(),
+          icon: z.string().optional(),
+          sortOrder: z.number().optional(),
+          isActive: z.boolean().optional(),
+          requiredRole: z.enum(["admin", "examiner", "user"]).optional(),
+          parentId: z.number().nullable().optional(),
+        }))
+        .mutation(async ({ input }) => {
+          const { id, ...data } = input;
+          return db.updateAdminMenuItem(id, data);
+        }),
+      delete: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          return db.deleteAdminMenuItem(input.id);
+        }),
+      reorder: adminProcedure
+        .input(z.array(z.object({
+          id: z.number(),
+          sortOrder: z.number(),
+        })))
+        .mutation(async ({ input }) => {
+          return db.reorderAdminMenuItems(input);
+        }),
+    }),
   }),
 
   // ============================================

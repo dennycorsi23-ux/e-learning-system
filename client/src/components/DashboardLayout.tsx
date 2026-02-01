@@ -19,18 +19,42 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-// Login redirect handled directly to /login
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users } from "lucide-react";
-import { CSSProperties, useEffect, useRef, useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { 
+  LayoutDashboard, 
+  LogOut, 
+  PanelLeft, 
+  Users, 
+  Building2, 
+  BookOpen, 
+  Calendar, 
+  Award, 
+  Settings, 
+  Menu as MenuIcon,
+  FileText,
+  TrendingUp,
+  HelpCircle,
+  type LucideIcon
+} from "lucide-react";
+import { CSSProperties, useEffect, useRef, useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
-import { Button } from "./ui/button";
 
-const menuItems = [
-  { icon: LayoutDashboard, label: "Page 1", path: "/" },
-  { icon: Users, label: "Page 2", path: "/some-path" },
-];
+// Icon mapping from string to component
+const iconMap: Record<string, LucideIcon> = {
+  LayoutDashboard,
+  Users,
+  Building2,
+  BookOpen,
+  Calendar,
+  Award,
+  Settings,
+  Menu: MenuIcon,
+  FileText,
+  TrendingUp,
+  HelpCircle,
+};
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 280;
@@ -92,8 +116,34 @@ function DashboardLayoutContent({
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const activeMenuItem = menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
+
+  // Fetch menu items from database
+  const { data: dbMenuItems, isLoading: menuLoading } = trpc.admin.menu.active.useQuery();
+
+  // Transform database menu items to component format
+  const menuItems = useMemo(() => {
+    if (!dbMenuItems || dbMenuItems.length === 0) {
+      // Fallback menu items if database is empty
+      return [
+        { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
+        { icon: Building2, label: "Gestione Sedi", path: "/admin/sedi" },
+        { icon: BookOpen, label: "Gestione Corsi", path: "/admin/corsi" },
+        { icon: Calendar, label: "Gestione Esami", path: "/admin/esami" },
+        { icon: Users, label: "Gestione Utenti", path: "/admin/utenti" },
+        { icon: Award, label: "Certificati", path: "/admin/certificati" },
+        { icon: MenuIcon, label: "Gestione Menu", path: "/admin/menu" },
+        { icon: Settings, label: "Impostazioni", path: "/admin/impostazioni" },
+      ];
+    }
+    return dbMenuItems.map(item => ({
+      icon: iconMap[item.icon] || LayoutDashboard,
+      label: item.label,
+      path: item.path,
+    }));
+  }, [dbMenuItems]);
+
+  const activeMenuItem = menuItems.find(item => item.path === location);
 
   useEffect(() => {
     if (isCollapsed) {
@@ -151,7 +201,7 @@ function DashboardLayoutContent({
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="font-semibold tracking-tight truncate">
-                    Navigation
+                    Menu
                   </span>
                 </div>
               ) : null}
@@ -160,24 +210,34 @@ function DashboardLayoutContent({
 
           <SidebarContent className="gap-0">
             <SidebarMenu className="px-2 py-1">
-              {menuItems.map(item => {
-                const isActive = location === item.path;
-                return (
-                  <SidebarMenuItem key={item.path}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      onClick={() => setLocation(item.path)}
-                      tooltip={item.label}
-                      className={`h-10 transition-all font-normal`}
-                    >
-                      <item.icon
-                        className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
-                      />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
+              {menuLoading ? (
+                // Loading skeleton for menu items
+                Array.from({ length: 6 }).map((_, i) => (
+                  <SidebarMenuItem key={i}>
+                    <div className="h-10 bg-muted/50 rounded-lg animate-pulse" />
                   </SidebarMenuItem>
-                );
-              })}
+                ))
+              ) : (
+                menuItems.map(item => {
+                  const isActive = location === item.path;
+                  const IconComponent = item.icon;
+                  return (
+                    <SidebarMenuItem key={item.path}>
+                      <SidebarMenuButton
+                        isActive={isActive}
+                        onClick={() => setLocation(item.path)}
+                        tooltip={item.label}
+                        className={`h-10 transition-all font-normal`}
+                      >
+                        <IconComponent
+                          className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
+                        />
+                        <span>{item.label}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })
+              )}
             </SidebarMenu>
           </SidebarContent>
 
@@ -206,7 +266,7 @@ function DashboardLayoutContent({
                   className="cursor-pointer text-destructive focus:text-destructive"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sign out</span>
+                  <span>Esci</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

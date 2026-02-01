@@ -37,6 +37,7 @@ const AdminCertificati = lazy(() => import("./pages/admin/Certificati"));
 const AdminDomande = lazy(() => import("./pages/admin/Domande"));
 const AdminImpostazioni = lazy(() => import("./pages/admin/Impostazioni"));
 const AdminReport = lazy(() => import("./pages/admin/Report"));
+const AdminMenu = lazy(() => import("./pages/admin/Menu"));
 
 // Exam pages
 const ExamRoom = lazy(() => import("./pages/exam/ExamRoom"));
@@ -94,6 +95,7 @@ function Router() {
         <Route path="/admin/domande" component={AdminDomande} />
         <Route path="/admin/impostazioni" component={AdminImpostazioni} />
         <Route path="/admin/report" component={AdminReport} />
+        <Route path="/admin/menu" component={AdminMenu} />
         
         {/* Center dashboard */}
         <Route path="/centro" component={CenterDashboard} />

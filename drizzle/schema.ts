@@ -572,3 +572,23 @@ export const faqs = mysqlTable("faqs", {
 });
 
 export type Faq = typeof faqs.$inferSelect;
+
+// ============================================
+// ADMIN MENU
+// ============================================
+
+export const adminMenu = mysqlTable("admin_menu", {
+  id: int("id").autoincrement().primaryKey(),
+  label: varchar("label", { length: 100 }).notNull(),
+  path: varchar("path", { length: 255 }).notNull(),
+  icon: varchar("icon", { length: 50 }).notNull().default("LayoutDashboard"),
+  sortOrder: int("sort_order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  requiredRole: mysqlEnum("required_role", ["admin", "examiner", "user"]).default("admin"),
+  parentId: int("parent_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AdminMenu = typeof adminMenu.$inferSelect;
+export type InsertAdminMenu = typeof adminMenu.$inferInsert;

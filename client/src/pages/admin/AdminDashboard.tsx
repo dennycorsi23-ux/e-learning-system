@@ -1,6 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Users, 
   BookOpen, 
@@ -13,10 +14,14 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useEffect } from "react";
+import { trpc } from "@/lib/trpc";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+
+  // Fetch real stats from database
+  const { data: dashboardStats, isLoading: statsLoading } = trpc.admin.stats.dashboard.useQuery();
 
   useEffect(() => {
     if (user && user.role !== "admin") {
@@ -25,12 +30,42 @@ export default function AdminDashboard() {
   }, [user, setLocation]);
 
   const stats = [
-    { label: "Utenti Totali", value: "0", icon: Users, color: "bg-blue-100 text-blue-600" },
-    { label: "Corsi Attivi", value: "0", icon: BookOpen, color: "bg-green-100 text-green-600" },
-    { label: "Esami Questo Mese", value: "0", icon: Calendar, color: "bg-amber-100 text-amber-600" },
-    { label: "Certificati Emessi", value: "0", icon: Award, color: "bg-purple-100 text-purple-600" },
-    { label: "Sedi Accreditate", value: "0", icon: Building2, color: "bg-indigo-100 text-indigo-600" },
-    { label: "Esaminatori", value: "0", icon: FileText, color: "bg-pink-100 text-pink-600" },
+    { 
+      label: "Utenti Totali", 
+      value: statsLoading ? null : (dashboardStats?.totalUsers ?? 0).toString(), 
+      icon: Users, 
+      color: "bg-blue-100 text-blue-600" 
+    },
+    { 
+      label: "Corsi Attivi", 
+      value: statsLoading ? null : (dashboardStats?.totalCourses ?? 0).toString(), 
+      icon: BookOpen, 
+      color: "bg-green-100 text-green-600" 
+    },
+    { 
+      label: "Esami Questo Mese", 
+      value: statsLoading ? null : (dashboardStats?.examsThisMonth ?? 0).toString(), 
+      icon: Calendar, 
+      color: "bg-amber-100 text-amber-600" 
+    },
+    { 
+      label: "Certificati Emessi", 
+      value: statsLoading ? null : (dashboardStats?.totalCertificates ?? 0).toString(), 
+      icon: Award, 
+      color: "bg-purple-100 text-purple-600" 
+    },
+    { 
+      label: "Sedi Accreditate", 
+      value: statsLoading ? null : (dashboardStats?.totalCenters ?? 0).toString(), 
+      icon: Building2, 
+      color: "bg-indigo-100 text-indigo-600" 
+    },
+    { 
+      label: "Esaminatori", 
+      value: statsLoading ? null : (dashboardStats?.totalExaminers ?? 0).toString(), 
+      icon: FileText, 
+      color: "bg-pink-100 text-pink-600" 
+    },
   ];
 
   const quickLinks = [
@@ -59,7 +94,11 @@ export default function AdminDashboard() {
                   <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${stat.color}`}>
                     <stat.icon className="h-6 w-6" />
                   </div>
-                  <p className="text-2xl font-bold">{stat.value}</p>
+                  {stat.value === null ? (
+                    <Skeleton className="h-8 w-12 mb-1" />
+                  ) : (
+                    <p className="text-2xl font-bold">{stat.value}</p>
+                  )}
                   <p className="text-xs text-muted-foreground">{stat.label}</p>
                 </div>
               </CardContent>
@@ -87,21 +126,23 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Alerts */}
-        <Card className="border-amber-200 bg-amber-50">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <h3 className="font-medium text-amber-900">Configurazione Iniziale</h3>
-                <p className="text-sm text-amber-800 mt-1">
-                  La piattaforma è in fase di configurazione. Aggiungi lingue, livelli QCER, 
-                  sedi d'esame e contenuti per completare la configurazione.
-                </p>
+        {/* Alerts - show only if no data */}
+        {dashboardStats && dashboardStats.totalCenters === 0 && (
+          <Card className="border-amber-200 bg-amber-50">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-medium text-amber-900">Configurazione Iniziale</h3>
+                  <p className="text-sm text-amber-800 mt-1">
+                    La piattaforma è in fase di configurazione. Aggiungi lingue, livelli QCER, 
+                    sedi d'esame e contenuti per completare la configurazione.
+                  </p>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </DashboardLayout>
   );

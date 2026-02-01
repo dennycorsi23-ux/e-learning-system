@@ -158,3 +158,11 @@
 - [x] CRUD Esami/Sessioni: modifica sessione esistente
 - [x] CRUD Utenti: form creazione nuovo utente
 - [x] CRUD Utenti: modifica utente esistente
+
+## Bug Fix Dashboard Admin (01/02/2026)
+- [x] Creare tabella admin_menu nel database per gestione dinamica menu
+- [x] Correggere sidebar: mostra "Page 1/Page 2" invece di Sedi, Corsi, Esami, Utenti
+- [x] Correggere dashboard: mostra 0 Corsi Attivi, 0 Certificati, 0 Esaminatori invece dei dati reali
+- [x] Creare pagina Gestione Menu per admin con CRUD e riordino
+
+- [x] Popolare sample_exams con esempi per tutte le abilità (Ascolto, Lettura, Scrittura, Orale) per inglese A1-C2
