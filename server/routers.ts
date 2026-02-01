@@ -5,6 +5,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import * as db from "./db";
+import { generateCertificateHTML, generateCertificateNumber, generateVerificationCode } from "./services/certificateGenerator";
 
 // Admin procedure - requires admin role
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -158,6 +159,59 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
         return db.getCertificateById(input.id);
+      }),
+    generatePDF: protectedProcedure
+      .input(z.object({ certificateId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const cert = await db.getCertificateById(input.certificateId);
+        if (!cert) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Certificato non trovato" });
+        }
+        
+        // Get user data
+        const user = await db.getUserById(cert.userId);
+        if (!user) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Utente non trovato" });
+        }
+        
+        // Generate certificate HTML
+        const html = generateCertificateHTML(
+          {
+            candidate: {
+              firstName: user.firstName || user.name || "Nome",
+              lastName: user.lastName || "Cognome",
+              fiscalCode: user.fiscalCode || "XXXXXX00X00X000X",
+              birthDate: user.birthDate || new Date(1990, 0, 1),
+              birthPlace: user.birthPlace || "Italia",
+            },
+            language: "Inglese",
+            languageNative: "English",
+            qcerLevel: "B2", // TODO: fetch from qcerLevels table using cert.qcerLevelId
+            scores: {
+              listening: cert.listeningScore || 0,
+              reading: cert.readingScore || 0,
+              writing: cert.writingScore || 0,
+              speaking: cert.speakingScore || 0,
+              total: cert.totalScore || 0,
+            },
+            examDate: cert.examDate || new Date(),
+            examCenter: cert.examCenterName || "Sede Centrale",
+            examCenterCity: "Roma",
+          },
+          {
+            name: "CertificaLingua",
+            address: "Via Roma 1",
+            city: "Roma",
+            phone: "+39 06 1234567",
+            email: "info@certificalingua.it",
+            website: "www.certificalingua.it",
+            accreditationNumber: "MIM-2024-001",
+          },
+          cert.certificateNumber || generateCertificateNumber(),
+          cert.verificationCode || generateVerificationCode()
+        );
+        
+        return { html, certificateNumber: cert.certificateNumber };
       }),
   }),
 

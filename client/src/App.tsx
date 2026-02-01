@@ -40,6 +40,7 @@ const AdminReport = lazy(() => import("./pages/admin/Report"));
 // Exam pages
 const ExamRoom = lazy(() => import("./pages/exam/ExamRoom"));
 const ExamProctoring = lazy(() => import("./pages/exam/ExamProctoring"));
+const TakeExam = lazy(() => import("./pages/exam/TakeExam"));
 
 // Loading component
 function PageLoader() {
@@ -92,6 +93,7 @@ function Router() {
         {/* Exam room */}
         <Route path="/exam/:examId" component={ExamRoom} />
         <Route path="/exam/:examId/proctoring" component={ExamProctoring} />
+        <Route path="/exam/:examId/take" component={TakeExam} />
         
         {/* 404 */}
         <Route path="/404" component={NotFound} />
