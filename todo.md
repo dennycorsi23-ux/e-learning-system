@@ -182,3 +182,14 @@
 - [x] Compiti Writing B2 con testi da scrivere
 - [x] Compiti Writing C1 con testi da scrivere
 - [x] Compiti Writing C2 con testi da scrivere
+
+## Domande Reali Esami B2, C1, C2 (01/02/2026)
+- [x] Ricerca formati esami Cambridge/IELTS per struttura e difficoltà
+- [x] 20 domande Listening B2 con trascrizioni realistiche
+- [x] 20 domande Listening C1 con trascrizioni realistiche
+- [x] 20 domande Listening C2 con trascrizioni realistiche
+- [x] 20 domande Reading B2 con testi appropriati
+- [x] 20 domande Reading C1 con testi appropriati
+- [x] 20 domande Reading C2 con testi appropriati
+- [x] Compiti Writing B2, C1, C2 con prompt dettagliati
+- [x] Struttura Speaking B2, C1, C2 con domande esaminatore
