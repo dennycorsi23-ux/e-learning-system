@@ -19,6 +19,7 @@ const Prezzi = lazy(() => import("./pages/Prezzi"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Contatti = lazy(() => import("./pages/Contatti"));
 const EsempiProve = lazy(() => import("./pages/EsempiProve"));
+const DemoProva = lazy(() => import("./pages/DemoProva"));
 
 // Dashboard pages (protected)
 const Dashboard = lazy(() => import("./pages/dashboard/Dashboard"));
@@ -77,6 +78,7 @@ function Router() {
         <Route path="/faq" component={FAQ} />
         <Route path="/contatti" component={Contatti} />
         <Route path="/esempi-prove" component={EsempiProve} />
+        <Route path="/demo/:skill/:level" component={DemoProva} />
         
         {/* User dashboard */}
         <Route path="/dashboard" component={Dashboard} />

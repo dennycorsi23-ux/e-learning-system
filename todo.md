@@ -166,3 +166,8 @@
 - [x] Creare pagina Gestione Menu per admin con CRUD e riordino
 
 - [x] Popolare sample_exams con esempi per tutte le abilità (Ascolto, Lettura, Scrittura, Orale) per inglese A1-C2
+
+## Contenuti Esempi Prove (01/02/2026)
+- [x] Popolare sample_exams con contenuti reali (domande, testi) per inglese A1-C2
+- [x] Implementare funzionalità Demo interattiva per ogni abilità
+- [ ] Implementare download PDF con esempi di prova

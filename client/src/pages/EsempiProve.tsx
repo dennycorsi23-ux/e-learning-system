@@ -12,8 +12,7 @@ import {
   Download,
   Play
 } from "lucide-react";
-import { Link } from "wouter";
-import { toast } from "sonner";
+import { Link, useLocation } from "wouter";
 
 const levels = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
@@ -73,17 +72,7 @@ const sampleExams = {
 };
 
 export default function EsempiProve() {
-  const handleDownload = (skill: string, level: string) => {
-    toast.info("Download in arrivo", {
-      description: `Gli esempi di prove saranno disponibili a breve.`
-    });
-  };
-
-  const handlePlay = (skill: string, level: string) => {
-    toast.info("Demo in arrivo", {
-      description: `La demo interattiva sarà disponibile a breve.`
-    });
-  };
+  const [, setLocation] = useLocation();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -171,7 +160,7 @@ export default function EsempiProve() {
                             variant="outline" 
                             size="sm" 
                             className="flex-1"
-                            onClick={() => handleDownload(key, sample.level)}
+                            onClick={() => setLocation(`/demo/${key}/${sample.level}`)}
                           >
                             <Download className="h-4 w-4 mr-1" />
                             PDF
@@ -179,7 +168,7 @@ export default function EsempiProve() {
                           <Button 
                             size="sm" 
                             className="flex-1"
-                            onClick={() => handlePlay(key, sample.level)}
+                            onClick={() => setLocation(`/demo/${key}/${sample.level}`)}
                           >
                             <Play className="h-4 w-4 mr-1" />
                             Demo
