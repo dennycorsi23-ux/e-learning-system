@@ -146,3 +146,13 @@
 - [ ] Salvataggio snapshot volto per audit
 - [ ] Integrazione con sistema proctoring esistente
 
+
+## Autenticazione Email/Password (Nuova Richiesta)
+- [x] Aggiungere campo passwordHash allo schema users
+- [x] Installare bcrypt per hashing password
+- [x] Implementare API login con email/password
+- [x] Implementare API register (solo admin può creare utenti)
+- [x] Creare pagina login con form email/password
+- [x] Gestione sessioni JWT
+- [x] Password per admin di test
+- [x] Test autenticazione (40 test passati)

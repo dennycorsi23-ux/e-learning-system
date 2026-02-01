@@ -15,6 +15,13 @@
       "when": 1769958065616,
       "tag": "0001_narrow_yellowjacket",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1769961732231,
+      "tag": "0002_silky_joseph",
+      "breakpoints": true
     }
   ]
 }

@@ -6,6 +6,9 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import * as db from "./db";
 import { generateCertificateHTML, generateCertificateNumber, generateVerificationCode } from "./services/certificateGenerator";
+import { loginWithEmailPassword, registerUser, changePassword, setUserPassword } from "./services/authService";
+import { SignJWT, jwtVerify } from "jose";
+import { ENV } from "./_core/env";
 
 // Admin procedure - requires admin role
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -23,6 +26,90 @@ export const appRouter = router({
   // ============================================
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    
+    // Login con email e password
+    login: publicProcedure
+      .input(z.object({
+        email: z.string().email(),
+        password: z.string().min(1),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const result = await loginWithEmailPassword(input.email, input.password);
+        
+        if (!result.success || !result.user) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: result.error || "Login fallito" });
+        }
+        
+        // Genera JWT token
+        const secret = new TextEncoder().encode(ENV.cookieSecret);
+        const token = await new SignJWT({ 
+          sub: result.user.openId,
+          email: result.user.email,
+          role: result.user.role,
+        })
+          .setProtectedHeader({ alg: "HS256" })
+          .setIssuedAt()
+          .setExpirationTime("7d")
+          .sign(secret);
+        
+        // Imposta il cookie di sessione
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, token, {
+          ...cookieOptions,
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 giorni
+        });
+        
+        return { success: true, user: result.user };
+      }),
+    
+    // Registrazione nuovo utente (solo admin)
+    register: adminProcedure
+      .input(z.object({
+        email: z.string().email(),
+        password: z.string().min(8),
+        name: z.string().min(1),
+        role: z.enum(["user", "admin", "examiner", "student"]),
+        fiscalCode: z.string().optional(),
+        firstName: z.string().optional(),
+        lastName: z.string().optional(),
+        phone: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const result = await registerUser(input);
+        if (!result.success) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: result.error || "Registrazione fallita" });
+        }
+        return result;
+      }),
+    
+    // Cambio password (utente autenticato)
+    changePassword: protectedProcedure
+      .input(z.object({
+        oldPassword: z.string().min(1),
+        newPassword: z.string().min(8),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const result = await changePassword(ctx.user.id, input.oldPassword, input.newPassword);
+        if (!result.success) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: result.error || "Cambio password fallito" });
+        }
+        return result;
+      }),
+    
+    // Imposta password per un utente (solo admin)
+    setUserPassword: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+        newPassword: z.string().min(8),
+      }))
+      .mutation(async ({ input }) => {
+        const result = await setUserPassword(input.userId, input.newPassword);
+        if (!result.success) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: result.error || "Impostazione password fallita" });
+        }
+        return result;
+      }),
+    
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
