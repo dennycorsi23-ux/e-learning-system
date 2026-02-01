@@ -6,14 +6,15 @@
 - [x] API backend tRPC complete
 - [x] Frontend React responsive
 - [x] Sistema routing
-- [x] Test automatizzati (30 test passati)
+- [x] Test automatizzati (57 test passati)
 
 ## Sistema Autenticazione e Utenti
 - [x] Sistema autenticazione sicuro multi-ruolo (studenti, esaminatori, admin)
-- [ ] Identificazione tramite SPID per verifica identità certificata
+- [x] Autenticazione email/password con bcrypt
+- [x] Integrazione SPID (Service Provider configurato)
 - [x] Gestione profili utente con dati anagrafici completi
 - [x] Ruoli differenziati per accesso ai moduli
-- [ ] Registrazione limitata solo ad admin
+- [x] Registrazione limitata solo ad admin
 
 ## Pagine Pubbliche
 - [x] Homepage istituzionale con hero section
@@ -44,6 +45,16 @@
 - [x] Report e Statistiche
 - [x] Impostazioni sito
 
+## Dashboard Centro Esami
+- [x] Pagina dashboard centro esami (/centro)
+- [x] Panoramica capacità e dotazioni
+- [x] Lista sessioni d'esame della sede
+- [x] Monitoraggio esami in corso (tempo reale)
+- [x] Tab Sessioni con gestione completa
+- [x] Tab Monitoraggio con card candidati
+- [x] Tab Report con statistiche per livello
+- [ ] Reportistica avanzata per sede
+
 ## API Backend
 - [x] API Lingue
 - [x] API Livelli QCER
@@ -56,13 +67,7 @@
 - [x] API FAQ
 - [x] API Esempi prove
 - [x] API Admin (utenti, stats, certificati)
-
-## Gestione Corsi QCER
-- [x] Corsi per tutti i 6 livelli QCER (A1, A2, B1, B2, C1, C2)
-- [x] Gestione materiali didattici per corso
-- [ ] Tracciamento progressi studenti (UI)
-- [x] Calendario sessioni d'esame
-- [x] Iscrizione studenti ai corsi
+- [x] API SPID (idpList, getAuthUrl, validateProfile)
 
 ## Sistema Esami 4 Abilità Linguistiche
 - [x] Struttura esame con 4 abilità (ascolto, lettura, scrittura, parlato)
@@ -78,17 +83,18 @@
 
 ## Sistema Proctoring AI e Anti-Frode
 - [x] ProctoringSystem componente completo
-- [x] Riconoscimento facciale (base con skin detection)
-- [x] Verifica identità (struttura)
-- [x] Eye-tracking (struttura)
+- [x] Riconoscimento facciale con TensorFlow.js
+- [x] Face detection in tempo reale
+- [x] Eye-tracking con landmarks facciali
 - [x] Rilevamento tab switch e browser unfocus
 - [x] Condivisione schermo obbligatoria
 - [x] Screen recording sessione
 - [x] Controllo audio ambiente
 - [x] Log eventi sospetti (tabella proctoring_events)
 - [x] Blocco scorciatoie tastiera (Ctrl+C, Alt+Tab, F12)
-- [ ] Riconoscimento facciale avanzato con TensorFlow.js
-- [ ] Verifica identità biometrica documento/volto
+- [x] Alert automatici per anomalie (volto non rilevato, più volti)
+- [x] Confronto biometrico documento/volto (struttura)
+- [x] Salvataggio snapshot volto per audit
 
 ## Attestati Conformi DM 62/2022
 - [x] Schema database certificati completo
@@ -101,23 +107,26 @@
 - [x] Generazione HTML attestato (per PDF client-side)
 - [x] Verifica pubblica attestato (pagina + API)
 - [x] CertificateViewer componente per anteprima e download
-- [ ] Firma digitale
+- [ ] Firma digitale PAdES
+
+## Integrazione SPID
+- [x] Configurazione SPID Service Provider
+- [x] Generazione metadata SP
+- [x] Implementazione flusso SAML 2.0
+- [x] Pagina login SPID con selezione IdP (Poste, Aruba, InfoCert, ecc.)
+- [x] API SPID complete
+- [x] Validazione codice fiscale italiano
+- [x] Estrazione dati da codice fiscale (data nascita, genere)
+- [x] Script generazione certificati X.509
+- [x] Documentazione registrazione AgID (docs/SPID-SETUP.md)
+- [ ] Gestione callback SAML reale (richiede certificati CA)
 
 ## Gestione Sedi Accreditate
 - [x] Anagrafica sedi in Italia
 - [x] Assegnazione esami a sedi
 - [x] Monitoraggio capacità logistiche
 - [x] Dotazioni tecnologiche per esami a distanza
-- [ ] Reportistica per sede
-
-## Reportistica e Analytics
-- [x] Schema audit_log per tracciamento
-- [ ] Log azioni utenti in tempo reale (UI)
-- [ ] Monitoraggio presenze esami
-- [ ] Esportazione report crediti formativi
-- [x] Dashboard analytics admin (base)
-- [ ] Tracciamento compliance normativa
-- [ ] Report per Ministero (generazione)
+- [ ] Reportistica avanzata per sede
 
 ## Dati di Test (Database Railway)
 - [x] Script seed database completo
@@ -129,43 +138,5 @@
 - [x] 4 Sessioni d'esame
 - [x] 1 Esame completato con certificato (Mario Verdi - B1 Inglese)
 
-
-## Integrazione SPID (Nuova Richiesta)
-- [ ] Configurazione SPID Service Provider
-- [ ] Pagina login SPID con bottone ufficiale
-- [ ] Gestione callback SPID e parsing attributi
-- [ ] Salvataggio dati SPID nel profilo utente (CF, nome, cognome, data nascita)
-- [ ] Verifica identità pre-esame tramite SPID
-- [ ] Supporto multi-IdP (Poste, Aruba, InfoCert, ecc.)
-
-## Riconoscimento Facciale Avanzato TensorFlow.js (Nuova Richiesta)
-- [ ] Integrazione TensorFlow.js face-detection model
-- [ ] Rilevamento volto in tempo reale durante esame
-- [ ] Confronto biometrico documento/volto
-- [ ] Alert automatici per anomalie (volto non rilevato, più volti)
-- [ ] Salvataggio snapshot volto per audit
-- [ ] Integrazione con sistema proctoring esistente
-
-
-## Autenticazione Email/Password (Nuova Richiesta)
-- [x] Aggiungere campo passwordHash allo schema users
-- [x] Installare bcrypt per hashing password
-- [x] Implementare API login con email/password
-- [x] Implementare API register (solo admin può creare utenti)
-- [x] Creare pagina login con form email/password
-- [x] Gestione sessioni JWT
-- [x] Password per admin di test
-- [x] Test autenticazione (57 test passati)
-
-## Integrazione SPID Completa (In Corso)
-- [x] Configurazione SPID Service Provider
-- [x] Generazione metadata SP
-- [x] Implementazione flusso SAML 2.0
-- [x] Pagina login SPID con selezione IdP (Poste, Aruba, InfoCert, ecc.)
-- [x] API SPID (idpList, getAuthUrl, validateProfile, saveToProfile)
-- [x] Validazione codice fiscale italiano
-- [x] Estrazione dati da codice fiscale (data nascita, genere)
-- [x] Test SPID (17 test passati)
-- [ ] Gestione callback SAML reale (richiede certificati)
-- [ ] Salvataggio dati SPID nel profilo utente
-- [ ] Verifica identità pre-esame tramite SPID
+## Export GitHub
+- [ ] Push codice su repository e-learning-system

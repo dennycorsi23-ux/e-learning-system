@@ -43,6 +43,9 @@ const ExamRoom = lazy(() => import("./pages/exam/ExamRoom"));
 const ExamProctoring = lazy(() => import("./pages/exam/ExamProctoring"));
 const TakeExam = lazy(() => import("./pages/exam/TakeExam"));
 
+// Center dashboard
+const CenterDashboard = lazy(() => import("./pages/center/CenterDashboard"));
+
 // Loading component
 function PageLoader() {
   return (
@@ -91,6 +94,9 @@ function Router() {
         <Route path="/admin/domande" component={AdminDomande} />
         <Route path="/admin/impostazioni" component={AdminImpostazioni} />
         <Route path="/admin/report" component={AdminReport} />
+        
+        {/* Center dashboard */}
+        <Route path="/centro" component={CenterDashboard} />
         
         {/* Exam room */}
         <Route path="/exam/:examId" component={ExamRoom} />

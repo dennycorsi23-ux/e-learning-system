@@ -17,8 +17,9 @@ describe("Certificate Generator", () => {
       const currentYear = new Date().getFullYear();
       expect(certNumber).toContain(currentYear.toString());
       
-      // Should have format CL-YYYY-XXXXXXXX
-      expect(certNumber).toMatch(/^CL-\d{4}-[A-Z0-9]{8}$/);
+      // Should have format CL-YYYY-XXXXXXXX (8 chars random after CL-YYYY-)
+      // nanoid can include - and _ characters
+      expect(certNumber).toMatch(/^CL-\d{4}-[A-Z0-9_-]{8}$/);
     });
 
     it("generates unique certificate numbers", () => {
