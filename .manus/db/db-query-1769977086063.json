@@ -1,0 +1,41 @@
+{
+  "query": "SHOW CREATE TABLE certificates;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2LPqHmqLVho9QZg.95ce027799d6 --database L93MYh3XUxpcggxEzoazYj --execute SHOW CREATE TABLE certificates;",
+  "rows": [
+    {
+      "Table": "certificates",
+      "Create Table": "CREATE TABLE `certificates` ("
+    }
+  ],
+  "messages": [
+    "  `id` int(11) NOT NULL AUTO_INCREMENT,",
+    "  `examId` int(11) NOT NULL,",
+    "  `userId` int(11) NOT NULL,",
+    "  `certificateNumber` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `verificationCode` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `languageId` int(11) NOT NULL,",
+    "  `qcerLevelId` int(11) NOT NULL,",
+    "  `listeningScore` int(11) DEFAULT NULL,",
+    "  `readingScore` int(11) DEFAULT NULL,",
+    "  `writingScore` int(11) DEFAULT NULL,",
+    "  `speakingScore` int(11) DEFAULT NULL,",
+    "  `totalScore` int(11) DEFAULT NULL,",
+    "  `issueDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,",
+    "  `expiryDate` timestamp NULL DEFAULT NULL,",
+    "  `examDate` timestamp NOT NULL,",
+    "  `examCenterName` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `certificatePdfUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `certificateWithConversionUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `status` enum('active','revoked','expired') COLLATE utf8mb4_unicode_ci DEFAULT 'active',",
+    "  `revokedAt` timestamp NULL DEFAULT NULL,",
+    "  `revokedReason` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,",
+    "  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,",
+    "  UNIQUE KEY `certificates_certificateNumber_unique` (`certificateNumber`),",
+    "  UNIQUE KEY `certificates_verificationCode_unique` (`verificationCode`)",
+    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+  ],
+  "stdout": "Table\tCreate Table\ncertificates\tCREATE TABLE `certificates` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `examId` int(11) NOT NULL,\n  `userId` int(11) NOT NULL,\n  `certificateNumber` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `verificationCode` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `languageId` int(11) NOT NULL,\n  `qcerLevelId` int(11) NOT NULL,\n  `listeningScore` int(11) DEFAULT NULL,\n  `readingScore` int(11) DEFAULT NULL,\n  `writingScore` int(11) DEFAULT NULL,\n  `speakingScore` int(11) DEFAULT NULL,\n  `totalScore` int(11) DEFAULT NULL,\n  `issueDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `expiryDate` timestamp NULL DEFAULT NULL,\n  `examDate` timestamp NOT NULL,\n  `examCenterName` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `certificatePdfUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `certificateWithConversionUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `status` enum('active','revoked','expired') COLLATE utf8mb4_unicode_ci DEFAULT 'active',\n  `revokedAt` timestamp NULL DEFAULT NULL,\n  `revokedReason` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,\n  UNIQUE KEY `certificates_certificateNumber_unique` (`certificateNumber`),\n  UNIQUE KEY `certificates_verificationCode_unique` (`verificationCode`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci\n",
+  "stderr": "",
+  "execution_time_ms": 196
+}
