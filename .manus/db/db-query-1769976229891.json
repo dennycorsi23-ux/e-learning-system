@@ -1,0 +1,40 @@
+{
+  "query": "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'admin_menu';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2LPqHmqLVho9QZg.95ce027799d6 --database L93MYh3XUxpcggxEzoazYj --execute SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'admin_menu';",
+  "rows": [
+    {
+      "COLUMN_NAME": "id"
+    },
+    {
+      "COLUMN_NAME": "label"
+    },
+    {
+      "COLUMN_NAME": "path"
+    },
+    {
+      "COLUMN_NAME": "icon"
+    },
+    {
+      "COLUMN_NAME": "sort_order"
+    },
+    {
+      "COLUMN_NAME": "is_active"
+    },
+    {
+      "COLUMN_NAME": "required_role"
+    },
+    {
+      "COLUMN_NAME": "parent_id"
+    },
+    {
+      "COLUMN_NAME": "created_at"
+    },
+    {
+      "COLUMN_NAME": "updated_at"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\nid\nlabel\npath\nicon\nsort_order\nis_active\nrequired_role\nparent_id\ncreated_at\nupdated_at\n",
+  "stderr": "",
+  "execution_time_ms": 63
+}

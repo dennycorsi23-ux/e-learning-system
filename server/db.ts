@@ -361,7 +361,7 @@ export async function getUpcomingExamSessions() {
   if (!db) return [];
   return db.select().from(examSessions)
     .where(and(
-      eq(examSessions.status, 'scheduled'),
+      eq(examSessions.status, 'open' as any),
       sql`${examSessions.examDate} >= NOW()`
     ))
     .orderBy(asc(examSessions.examDate));
@@ -896,8 +896,8 @@ export async function getExaminers() {
 export async function getSessionDocuments(sessionId: number) {
   const db = await getDb();
   if (!db) return [];
-  const result = await db.execute(sql`SELECT * FROM session_documents WHERE sessionId = ${sessionId} ORDER BY uploadedAt DESC`);
-  return result[0] as any[];
+  const result = await db.execute(sql`SELECT * FROM session_documents WHERE sessionId = ${sessionId} ORDER BY uploadedAt DESC`) as any;
+  return (result[0] || []) as any[];
 }
 
 export async function createSessionDocument(data: {

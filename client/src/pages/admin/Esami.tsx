@@ -27,7 +27,7 @@ type ExamSession = {
   currentParticipants: number | null;
   price: string | null;
   isRemote: boolean | null;
-  status: "scheduled" | "in_progress" | "completed" | "cancelled" | "ongoing" | null;
+  status: "draft" | "open" | "confirmed" | "ongoing" | "completed" | "approved" | "cancelled" | null;
 };
 
 type Language = {

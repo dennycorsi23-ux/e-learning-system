@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { DashboardLayout } from "@/components/DashboardLayout";
+import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { 
   Plus, Search, MoreVertical, Calendar, Users, MapPin, 
   Edit, Trash2, CheckCircle, XCircle, Upload, Download,
@@ -22,22 +22,22 @@ type SessionStatus = 'draft' | 'open' | 'confirmed' | 'ongoing' | 'completed' | 
 
 interface ExamSession {
   id: number;
-  requestNumber?: string;
+  requestNumber?: string | null;
   title: string;
-  examDate: string;
-  startTime?: string;
-  endTime?: string;
+  examDate: Date | string;
+  startTime?: string | null;
+  endTime?: string | null;
   languageId: number;
   qcerLevelId: number;
-  examCenterId?: number;
-  examinerId?: number;
+  examCenterId?: number | null;
+  examinerId?: number | null;
   maxParticipants: number;
   currentParticipants: number;
-  price?: number;
+  price?: string | number | null;
   isRemote: boolean;
   status: SessionStatus;
-  zipPassword?: string;
-  description?: string;
+  zipPassword?: string | null;
+  description?: string | null;
 }
 
 const statusConfig: Record<SessionStatus, { label: string; color: string; icon: React.ReactNode }> = {
@@ -51,7 +51,6 @@ const statusConfig: Record<SessionStatus, { label: string; color: string; icon: 
 };
 
 export default function AdminSessioni() {
-  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -66,36 +65,36 @@ export default function AdminSessioni() {
 
   const createMutation = trpc.admin.examSessions.create.useMutation({
     onSuccess: () => {
-      toast({ title: "Sessione creata", description: "La sessione è stata creata con successo" });
+      toast.success("Sessione creata");
       setIsCreateOpen(false);
       refetch();
     },
-    onError: (err) => toast({ title: "Errore", description: err.message, variant: "destructive" }),
+    onError: (err: any) => toast.error(err.message || "Errore"),
   });
 
   const updateMutation = trpc.admin.examSessions.update.useMutation({
     onSuccess: () => {
-      toast({ title: "Sessione aggiornata", description: "Le modifiche sono state salvate" });
+      toast.success("Sessione aggiornata");
       setEditingSession(null);
       refetch();
     },
-    onError: (err) => toast({ title: "Errore", description: err.message, variant: "destructive" }),
+    onError: (err: any) => toast.error(err.message || "Errore"),
   });
 
   const updateStatusMutation = trpc.admin.examSessions.updateStatus.useMutation({
     onSuccess: () => {
-      toast({ title: "Stato aggiornato", description: "Lo stato della sessione è stato aggiornato" });
+      toast.success("Stato aggiornato");
       refetch();
     },
-    onError: (err) => toast({ title: "Errore", description: err.message, variant: "destructive" }),
+    onError: (err: any) => toast.error(err.message || "Errore"),
   });
 
   const deleteMutation = trpc.admin.examSessions.delete.useMutation({
     onSuccess: () => {
-      toast({ title: "Sessione eliminata", description: "La sessione è stata eliminata" });
+      toast.success("Sessione eliminata");
       refetch();
     },
-    onError: (err) => toast({ title: "Errore", description: err.message, variant: "destructive" }),
+    onError: (err: any) => toast.error(err.message || "Errore"),
   });
 
   const filteredSessions = (sessions as ExamSession[]).filter((session) => {
@@ -107,8 +106,8 @@ export default function AdminSessioni() {
 
   const getLanguageName = (id: number) => (languages as any[]).find((l) => l.id === id)?.nameIt || "N/A";
   const getLevelName = (id: number) => (levels as any[]).find((l) => l.id === id)?.code || "N/A";
-  const getCenterName = (id?: number) => id ? (centers as any[]).find((c) => c.id === id)?.name || "N/A" : "Online";
-  const getExaminerName = (id?: number) => id ? (examiners as any[]).find((e) => e.id === id)?.name || "N/A" : "Non assegnato";
+  const getCenterName = (id?: number | null) => id ? (centers as any[]).find((c) => c.id === id)?.name || "N/A" : "Online";
+  const getExaminerName = (id?: number | null) => id ? (examiners as any[]).find((e) => e.id === id)?.name || "N/A" : "Non assegnato";
 
   const handleStatusChange = (sessionId: number, newStatus: SessionStatus) => {
     updateStatusMutation.mutate({ id: sessionId, status: newStatus });
@@ -274,8 +273,8 @@ function SessionCard({
   session: ExamSession;
   getLanguageName: (id: number) => string;
   getLevelName: (id: number) => string;
-  getCenterName: (id?: number) => string;
-  getExaminerName: (id?: number) => string;
+  getCenterName: (id?: number | null) => string;
+  getExaminerName: (id?: number | null) => string;
   onEdit: () => void;
   onDelete: () => void;
   onStatusChange: (id: number, status: SessionStatus) => void;
@@ -627,21 +626,20 @@ function UploadDocuments({
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
   const { data: documents = [], refetch } = trpc.admin.examSessions.getDocuments.useQuery({ sessionId });
   
   const uploadMutation = trpc.admin.examSessions.uploadDocument.useMutation({
     onSuccess: () => {
-      toast({ title: "Documento caricato", description: "Il documento è stato caricato con successo" });
+      toast.success("Documento caricato");
       refetch();
     },
-    onError: (err) => toast({ title: "Errore", description: err.message, variant: "destructive" }),
+    onError: (err: any) => toast.error(err.message || "Errore"),
   });
 
   const deleteMutation = trpc.admin.examSessions.deleteDocument.useMutation({
     onSuccess: () => {
-      toast({ title: "Documento eliminato" });
+      toast.success("Documento eliminato");
       refetch();
     },
   });

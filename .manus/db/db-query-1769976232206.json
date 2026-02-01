@@ -1,0 +1,27 @@
+{
+  "query": "SHOW CREATE TABLE admin_menu;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2LPqHmqLVho9QZg.95ce027799d6 --database L93MYh3XUxpcggxEzoazYj --execute SHOW CREATE TABLE admin_menu;",
+  "rows": [
+    {
+      "Table": "admin_menu",
+      "Create Table": "CREATE TABLE `admin_menu` ("
+    }
+  ],
+  "messages": [
+    "  `id` int(11) NOT NULL AUTO_INCREMENT,",
+    "  `label` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `path` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `icon` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'LayoutDashboard',",
+    "  `sort_order` int(11) NOT NULL DEFAULT '0',",
+    "  `is_active` tinyint(1) NOT NULL DEFAULT '1',",
+    "  `required_role` enum('admin','examiner','user') COLLATE utf8mb4_unicode_ci DEFAULT 'admin',",
+    "  `parent_id` int(11) DEFAULT NULL,",
+    "  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,",
+    "  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+    "  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */",
+    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+  ],
+  "stdout": "Table\tCreate Table\nadmin_menu\tCREATE TABLE `admin_menu` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `label` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `path` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `icon` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'LayoutDashboard',\n  `sort_order` int(11) NOT NULL DEFAULT '0',\n  `is_active` tinyint(1) NOT NULL DEFAULT '1',\n  `required_role` enum('admin','examiner','user') COLLATE utf8mb4_unicode_ci DEFAULT 'admin',\n  `parent_id` int(11) DEFAULT NULL,\n  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci\n",
+  "stderr": "",
+  "execution_time_ms": 59
+}

@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO admin_menu (label, path, icon, sort_order, is_active, required_role) VALUES ('Gestione Sessioni', '/admin/sessioni', 'Calendar', 5, 1, 'admin');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2LPqHmqLVho9QZg.95ce027799d6 --database L93MYh3XUxpcggxEzoazYj --execute INSERT INTO admin_menu (label, path, icon, sort_order, is_active, required_role) VALUES ('Gestione Sessioni', '/admin/sessioni', 'Calendar', 5, 1, 'admin');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 73
+}

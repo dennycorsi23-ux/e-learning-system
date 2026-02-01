@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO admin_menu (label, path, icon, sortOrder, isActive, requiredRole) VALUES ('Gestione Sessioni', '/admin/sessioni', 'Calendar', 5, true, 'admin');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2LPqHmqLVho9QZg.95ce027799d6 --database L93MYh3XUxpcggxEzoazYj --execute INSERT INTO admin_menu (label, path, icon, sortOrder, isActive, requiredRole) VALUES ('Gestione Sessioni', '/admin/sessioni', 'Calendar', 5, true, 'admin');",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'sortOrder' in 'field list'"
+  ]
+}

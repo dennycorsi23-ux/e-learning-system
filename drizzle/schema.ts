@@ -194,9 +194,11 @@ export const materialProgress = mysqlTable("material_progress", {
 
 export const examSessions = mysqlTable("exam_sessions", {
   id: int("id").autoincrement().primaryKey(),
+  requestNumber: varchar("requestNumber", { length: 20 }), // Anno + progressivo
   languageId: int("languageId").notNull(),
   qcerLevelId: int("qcerLevelId").notNull(),
   examCenterId: int("examCenterId"),
+  examinerId: int("examinerId"), // Esaminatore assegnato
   title: varchar("title", { length: 200 }).notNull(),
   description: text("description"),
   examDate: timestamp("examDate").notNull(),
@@ -207,7 +209,10 @@ export const examSessions = mysqlTable("exam_sessions", {
   registrationDeadline: timestamp("registrationDeadline"),
   price: decimal("price", { precision: 10, scale: 2 }),
   isRemote: boolean("isRemote").default(false),
-  status: mysqlEnum("status", ["scheduled", "ongoing", "completed", "cancelled"]).default("scheduled"),
+  status: mysqlEnum("status", ["draft", "open", "confirmed", "ongoing", "completed", "approved", "cancelled"]).default("draft"),
+  zipPassword: varchar("zipPassword", { length: 20 }), // Password per ZIP documenti
+  approvedAt: timestamp("approvedAt"),
+  approvedBy: int("approvedBy"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -541,6 +541,105 @@ export const appRouter = router({
       list: adminProcedure.query(async () => {
         return db.getAllExamSessions();
       }),
+      getById: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .query(async ({ input }) => {
+          return db.getExamSessionById(input.id);
+        }),
+      create: adminProcedure
+        .input(z.object({
+          languageId: z.number(),
+          qcerLevelId: z.number(),
+          examCenterId: z.number().optional(),
+          examinerId: z.number().optional(),
+          title: z.string().min(1),
+          description: z.string().optional(),
+          examDate: z.string(),
+          startTime: z.string().optional(),
+          endTime: z.string().optional(),
+          maxParticipants: z.number().default(30),
+          price: z.number().optional(),
+          isRemote: z.boolean().default(false),
+        }))
+        .mutation(async ({ input }) => {
+          const examDate = new Date(input.examDate);
+          const year = examDate.getFullYear();
+          const count = await db.getExamSessionsCountByYear(year);
+          const requestNumber = `${year}${String(count + 1).padStart(4, '0')}`;
+          return db.createExamSession({ ...input, examDate, requestNumber, status: 'draft' } as any);
+        }),
+      update: adminProcedure
+        .input(z.object({
+          id: z.number(),
+          languageId: z.number().optional(),
+          qcerLevelId: z.number().optional(),
+          examCenterId: z.number().optional(),
+          examinerId: z.number().optional(),
+          title: z.string().optional(),
+          description: z.string().optional(),
+          examDate: z.string().optional(),
+          startTime: z.string().optional(),
+          endTime: z.string().optional(),
+          maxParticipants: z.number().optional(),
+          price: z.number().optional(),
+          isRemote: z.boolean().optional(),
+        }))
+        .mutation(async ({ input }) => {
+          const { id, ...data } = input;
+          return db.updateExamSession(id, data as any);
+        }),
+      delete: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          return db.deleteExamSession(input.id);
+        }),
+      updateStatus: adminProcedure
+        .input(z.object({
+          id: z.number(),
+          status: z.enum(['draft', 'open', 'confirmed', 'ongoing', 'completed', 'approved', 'cancelled']),
+        }))
+        .mutation(async ({ input, ctx }) => {
+          const session = await db.getExamSessionById(input.id);
+          if (!session) throw new TRPCError({ code: 'NOT_FOUND', message: 'Sessione non trovata' });
+          
+          let zipPassword = session.zipPassword;
+          if (input.status === 'approved' && !zipPassword) {
+            zipPassword = Math.random().toString(36).substring(2, 12).toUpperCase();
+          }
+          
+          return db.updateExamSession(input.id, { 
+            status: input.status as any,
+            zipPassword: zipPassword as any,
+            ...(input.status === 'approved' ? { approvedAt: new Date(), approvedBy: ctx.user.id } : {})
+          });
+        }),
+      uploadDocument: adminProcedure
+        .input(z.object({
+          sessionId: z.number(),
+          fileName: z.string(),
+          fileUrl: z.string(),
+          fileType: z.string().optional(),
+          fileSize: z.number().optional(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+          return db.createSessionDocument({
+            ...input,
+            uploadedBy: ctx.user.id,
+          });
+        }),
+      getDocuments: adminProcedure
+        .input(z.object({ sessionId: z.number() }))
+        .query(async ({ input }) => {
+          return db.getSessionDocuments(input.sessionId);
+        }),
+      deleteDocument: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          return db.deleteSessionDocument(input.id);
+        }),
+      getExaminers: adminProcedure.query(async () => {
+        return db.getExaminers();
+      }),
     }),
 
     menu: router({
