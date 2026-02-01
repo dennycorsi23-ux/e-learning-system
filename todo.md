@@ -140,3 +140,9 @@
 
 ## Export GitHub
 - [x] Push codice su repository e-learning-system
+
+
+## Fix Railway - OAuth Opzionale
+- [x] Modificare server per rendere OAuth opzionale
+- [x] Rimuovere errore OAUTH_SERVER_URL non configurato
+- [x] Push correzioni su GitHub
