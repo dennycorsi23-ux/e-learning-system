@@ -171,3 +171,14 @@
 - [x] Popolare sample_exams con contenuti reali (domande, testi) per inglese A1-C2
 - [x] Implementare funzionalità Demo interattiva per ogni abilità
 - [ ] Implementare download PDF con esempi di prova
+
+## Contenuti Completi Esami B2, C1, C2 (01/02/2026)
+- [x] 30 domande Listening B2 con trascrizioni audio realistiche
+- [x] 30 domande Listening C1 con trascrizioni audio realistiche
+- [x] 30 domande Listening C2 con trascrizioni audio realistiche
+- [x] 30 domande Reading B2 con testi e passaggi
+- [x] 30 domande Reading C1 con testi e passaggi
+- [x] 30 domande Reading C2 con testi e passaggi
+- [x] Compiti Writing B2 con testi da scrivere
+- [x] Compiti Writing C1 con testi da scrivere
+- [x] Compiti Writing C2 con testi da scrivere
