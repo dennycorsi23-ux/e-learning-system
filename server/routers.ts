@@ -41,14 +41,14 @@ export const appRouter = router({
           throw new TRPCError({ code: "UNAUTHORIZED", message: result.error || "Login fallito" });
         }
         
-        // Genera JWT token
+        // Genera JWT token con i campi richiesti da verifySession
         const secret = new TextEncoder().encode(ENV.cookieSecret);
         const token = await new SignJWT({ 
-          sub: result.user.openId,
-          email: result.user.email,
-          role: result.user.role,
+          openId: result.user.openId,
+          appId: ENV.appId || "certifica-lingua",
+          name: result.user.name || result.user.email || "",
         })
-          .setProtectedHeader({ alg: "HS256" })
+          .setProtectedHeader({ alg: "HS256", typ: "JWT" })
           .setIssuedAt()
           .setExpirationTime("7d")
           .sign(secret);
