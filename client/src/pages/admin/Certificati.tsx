@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Award, Search, Eye, Ban, Download, Loader2, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Award, Search, Eye, Ban, Download, Loader2, CheckCircle, XCircle, Clock, FileText } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -42,8 +42,10 @@ const statusConfig = {
 export default function AdminCertificati() {
   const [searchQuery, setSearchQuery] = useState("");
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
   const [revokeReason, setRevokeReason] = useState("");
+  const [generatingPdf, setGeneratingPdf] = useState<number | null>(null);
 
   const { data: certificates = [], isLoading, refetch } = trpc.admin.certificates.list.useQuery();
   const { data: languages = [] } = trpc.languages.list.useQuery();
@@ -58,6 +60,22 @@ export default function AdminCertificati() {
       refetch();
     },
     onError: (err: any) => toast.error(err.message || "Errore"),
+  });
+
+  const generatePdfMutation = trpc.admin.certificates.generatePdf.useMutation({
+    onSuccess: (data) => {
+      toast.success("PDF generato con successo!");
+      setGeneratingPdf(null);
+      refetch();
+      // Open the PDF in a new tab
+      if (data.url) {
+        window.open(data.url, '_blank');
+      }
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Errore nella generazione del PDF");
+      setGeneratingPdf(null);
+    },
   });
 
   const getLanguageName = (id: number) => (languages as any[]).find((l) => l.id === id)?.name || "N/A";
@@ -76,6 +94,16 @@ export default function AdminCertificati() {
   const handleRevoke = (cert: Certificate) => {
     setSelectedCertificate(cert);
     setRevokeDialogOpen(true);
+  };
+
+  const handleView = (cert: Certificate) => {
+    setSelectedCertificate(cert);
+    setViewDialogOpen(true);
+  };
+
+  const handleGeneratePdf = (certId: number) => {
+    setGeneratingPdf(certId);
+    generatePdfMutation.mutate({ certificateId: certId });
   };
 
   const confirmRevoke = () => {
@@ -161,23 +189,46 @@ export default function AdminCertificati() {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              {cert.certificatePdfUrl && (
-                                <Button variant="ghost" size="icon" asChild>
+                            <div className="flex items-center justify-end gap-1">
+                              {/* Generate PDF Button */}
+                              {!cert.certificatePdfUrl ? (
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  onClick={() => handleGeneratePdf(cert.id)}
+                                  disabled={generatingPdf === cert.id}
+                                  title="Genera PDF"
+                                >
+                                  {generatingPdf === cert.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <FileText className="h-4 w-4 text-blue-600" />
+                                  )}
+                                </Button>
+                              ) : (
+                                <Button variant="ghost" size="icon" asChild title="Scarica PDF">
                                   <a href={cert.certificatePdfUrl} target="_blank" rel="noopener noreferrer">
-                                    <Download className="h-4 w-4" />
+                                    <Download className="h-4 w-4 text-green-600" />
                                   </a>
                                 </Button>
                               )}
-                              <Button variant="ghost" size="icon">
+                              {/* View Details Button */}
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={() => handleView(cert)}
+                                title="Visualizza dettagli"
+                              >
                                 <Eye className="h-4 w-4" />
                               </Button>
+                              {/* Revoke Button */}
                               {cert.status === "active" && (
                                 <Button 
                                   variant="ghost" 
                                   size="icon" 
                                   className="text-red-600 hover:text-red-700"
                                   onClick={() => handleRevoke(cert)}
+                                  title="Revoca certificato"
                                 >
                                   <Ban className="h-4 w-4" />
                                 </Button>
@@ -194,6 +245,124 @@ export default function AdminCertificati() {
           </CardContent>
         </Card>
       </div>
+
+      {/* View Certificate Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Dettagli Certificato</DialogTitle>
+          </DialogHeader>
+          {selectedCertificate && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-muted-foreground">Numero Certificato</label>
+                  <p className="font-mono font-semibold">{selectedCertificate.certificateNumber}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-muted-foreground">Codice Verifica</label>
+                  <p className="font-mono">{selectedCertificate.verificationCode}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-muted-foreground">Lingua</label>
+                  <p>{getLanguageName(selectedCertificate.languageId)}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-muted-foreground">Livello QCER</label>
+                  <Badge variant="secondary" className="mt-1">{getLevelCode(selectedCertificate.qcerLevelId)}</Badge>
+                </div>
+              </div>
+
+              <div className="border rounded-lg p-4 bg-muted/30">
+                <h4 className="font-semibold mb-3">Punteggi per Competenza</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex justify-between">
+                    <span>🎧 Ascolto</span>
+                    <span className="font-semibold">{selectedCertificate.listeningScore || 0}/100</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>📖 Lettura</span>
+                    <span className="font-semibold">{selectedCertificate.readingScore || 0}/100</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>✍️ Scrittura</span>
+                    <span className="font-semibold">{selectedCertificate.writingScore || 0}/100</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>🗣️ Parlato</span>
+                    <span className="font-semibold">{selectedCertificate.speakingScore || 0}/100</span>
+                  </div>
+                </div>
+                <div className="mt-4 pt-3 border-t flex justify-between items-center">
+                  <span className="font-semibold">Punteggio Totale</span>
+                  <span className="text-2xl font-bold text-primary">{selectedCertificate.totalScore || 0}/100</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 text-sm">
+                <div>
+                  <label className="text-muted-foreground">Data Esame</label>
+                  <p>{formatDate(selectedCertificate.examDate)}</p>
+                </div>
+                <div>
+                  <label className="text-muted-foreground">Data Emissione</label>
+                  <p>{formatDate(selectedCertificate.issueDate)}</p>
+                </div>
+                <div>
+                  <label className="text-muted-foreground">Scadenza</label>
+                  <p>{formatDate(selectedCertificate.expiryDate)}</p>
+                </div>
+              </div>
+
+              {selectedCertificate.examCenterName && (
+                <div>
+                  <label className="text-sm text-muted-foreground">Centro Esami</label>
+                  <p>{selectedCertificate.examCenterName}</p>
+                </div>
+              )}
+
+              {selectedCertificate.status === "revoked" && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-red-700 mb-2">Certificato Revocato</h4>
+                  <p className="text-sm text-red-600">
+                    Data revoca: {formatDate(selectedCertificate.revokedAt)}
+                  </p>
+                  {selectedCertificate.revokedReason && (
+                    <p className="text-sm text-red-600 mt-1">
+                      Motivo: {selectedCertificate.revokedReason}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            {selectedCertificate?.certificatePdfUrl ? (
+              <Button asChild>
+                <a href={selectedCertificate.certificatePdfUrl} target="_blank" rel="noopener noreferrer">
+                  <Download className="h-4 w-4 mr-2" />
+                  Scarica PDF
+                </a>
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => selectedCertificate && handleGeneratePdf(selectedCertificate.id)}
+                disabled={generatingPdf === selectedCertificate?.id}
+              >
+                {generatingPdf === selectedCertificate?.id ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <FileText className="h-4 w-4 mr-2" />
+                )}
+                Genera PDF
+              </Button>
+            )}
+            <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
+              Chiudi
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Revoke Dialog */}
       <Dialog open={revokeDialogOpen} onOpenChange={setRevokeDialogOpen}>

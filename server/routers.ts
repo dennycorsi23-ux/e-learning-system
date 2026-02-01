@@ -535,6 +535,62 @@ export const appRouter = router({
             revokedReason: input.reason 
           });
         }),
+      generatePdf: adminProcedure
+        .input(z.object({ certificateId: z.number() }))
+        .mutation(async ({ input }) => {
+          const { generateAndUploadCertificate } = await import("./certificateGenerator");
+          
+          // Get certificate data
+          const dbInstance = await db.getDb();
+          if (!dbInstance) throw new Error("Database not connected");
+          
+          const { certificates, users, languages, qcerLevels } = await import("../drizzle/schema");
+          const { eq } = await import("drizzle-orm");
+          
+          const [cert] = await dbInstance
+            .select()
+            .from(certificates)
+            .where(eq(certificates.id, input.certificateId));
+          
+          if (!cert) throw new Error("Certificato non trovato");
+          
+          const [user] = await dbInstance
+            .select()
+            .from(users)
+            .where(eq(users.id, cert.userId));
+          
+          const [language] = await dbInstance
+            .select()
+            .from(languages)
+            .where(eq(languages.id, cert.languageId));
+          
+          const [level] = await dbInstance
+            .select()
+            .from(qcerLevels)
+            .where(eq(qcerLevels.id, cert.qcerLevelId));
+          
+          const pdfUrl = await generateAndUploadCertificate({
+            certificateNumber: cert.certificateNumber,
+            verificationCode: cert.verificationCode,
+            candidateName: user?.name || "Candidato",
+            language: language?.name || "Italiano",
+            level: level?.code || "B2",
+            listeningScore: cert.listeningScore || 0,
+            readingScore: cert.readingScore || 0,
+            writingScore: cert.writingScore || 0,
+            speakingScore: cert.speakingScore || 0,
+            totalScore: cert.totalScore || 0,
+            examDate: cert.examDate,
+            issueDate: cert.issueDate,
+            expiryDate: cert.expiryDate || new Date(Date.now() + 3 * 365 * 24 * 60 * 60 * 1000),
+            examCenterName: cert.examCenterName || "Centro Esami CertificaLingua",
+          });
+          
+          // Update certificate with PDF URL
+          await db.updateCertificate(input.certificateId, { certificatePdfUrl: pdfUrl });
+          
+          return { url: pdfUrl };
+        }),
     }),
 
     examSessions: router({
