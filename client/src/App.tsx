@@ -10,6 +10,7 @@ import { Loader2 } from "lucide-react";
 
 // Lazy load pages for better performance
 const Login = lazy(() => import("./pages/Login"));
+const LoginSpid = lazy(() => import("./pages/LoginSpid"));
 const VerificaAttestato = lazy(() => import("./pages/VerificaAttestato"));
 const Certificazioni = lazy(() => import("./pages/Certificazioni"));
 const SessioniEsame = lazy(() => import("./pages/SessioniEsame"));
@@ -61,6 +62,7 @@ function Router() {
         {/* Public pages */}
         <Route path="/" component={Home} />
         <Route path="/login" component={Login} />
+        <Route path="/login/spid" component={LoginSpid} />
         <Route path="/verifica" component={VerificaAttestato} />
         <Route path="/verifica/:code" component={VerificaAttestato} />
         <Route path="/certificazioni" component={Certificazioni} />

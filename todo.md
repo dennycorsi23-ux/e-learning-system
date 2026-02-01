@@ -119,3 +119,30 @@
 - [ ] Tracciamento compliance normativa
 - [ ] Report per Ministero (generazione)
 
+## Dati di Test (Database Railway)
+- [x] Script seed database completo
+- [x] 5 Lingue (Inglese, Francese, Tedesco, Spagnolo, Italiano)
+- [x] 6 Livelli QCER (A1-C2)
+- [x] 3 Sedi d'esame (Roma, Milano, Napoli)
+- [x] 4 Utenti (admin, esaminatore, 2 studenti)
+- [x] 8 Corsi
+- [x] 4 Sessioni d'esame
+- [x] 1 Esame completato con certificato (Mario Verdi - B1 Inglese)
+
+
+## Integrazione SPID (Nuova Richiesta)
+- [ ] Configurazione SPID Service Provider
+- [ ] Pagina login SPID con bottone ufficiale
+- [ ] Gestione callback SPID e parsing attributi
+- [ ] Salvataggio dati SPID nel profilo utente (CF, nome, cognome, data nascita)
+- [ ] Verifica identità pre-esame tramite SPID
+- [ ] Supporto multi-IdP (Poste, Aruba, InfoCert, ecc.)
+
+## Riconoscimento Facciale Avanzato TensorFlow.js (Nuova Richiesta)
+- [ ] Integrazione TensorFlow.js face-detection model
+- [ ] Rilevamento volto in tempo reale durante esame
+- [ ] Confronto biometrico documento/volto
+- [ ] Alert automatici per anomalie (volto non rilevato, più volti)
+- [ ] Salvataggio snapshot volto per audit
+- [ ] Integrazione con sistema proctoring esistente
+
