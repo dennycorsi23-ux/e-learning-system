@@ -205,12 +205,13 @@ export async function uploadCertificateToCloudinary(
   certificateNumber: string
 ): Promise<string> {
   return new Promise((resolve, reject) => {
+    const publicId = 'certificates/' + certificateNumber.replace(/[^a-zA-Z0-9]/g, '-') + '-' + Date.now();
+    
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        resource_type: 'raw',
-        folder: 'certificates',
-        public_id: certificateNumber.replace(/[^a-zA-Z0-9]/g, '-'),
-        format: 'pdf'
+        resource_type: 'auto',
+        public_id: publicId,
+        type: 'upload'
       },
       (error, result) => {
         if (error) {
