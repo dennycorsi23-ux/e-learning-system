@@ -139,4 +139,4 @@
 - [x] 1 Esame completato con certificato (Mario Verdi - B1 Inglese)
 
 ## Export GitHub
-- [ ] Push codice su repository e-learning-system
+- [x] Push codice su repository e-learning-system
