@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { 
   Shield, 
-  CheckCircle, 
   Info, 
   ExternalLink,
   ChevronRight,
@@ -21,53 +20,71 @@ import {
   User,
   Building2,
   Loader2,
+  ArrowLeft,
 } from "lucide-react";
 import { Link } from "wouter";
-
-// Lista degli Identity Provider SPID
-const SPID_PROVIDERS = [
-  { id: 'aruba', name: 'Aruba ID', logo: '/images/spid/aruba.png' },
-  { id: 'infocert', name: 'InfoCert ID', logo: '/images/spid/infocert.png' },
-  { id: 'intesa', name: 'Intesa ID', logo: '/images/spid/intesa.png' },
-  { id: 'lepida', name: 'Lepida ID', logo: '/images/spid/lepida.png' },
-  { id: 'namirial', name: 'Namirial ID', logo: '/images/spid/namirial.png' },
-  { id: 'poste', name: 'Poste ID', logo: '/images/spid/poste.png' },
-  { id: 'sielte', name: 'Sielte ID', logo: '/images/spid/sielte.png' },
-  { id: 'register', name: 'SpidItalia', logo: '/images/spid/register.png' },
-  { id: 'tim', name: 'TIM ID', logo: '/images/spid/tim.png' },
-];
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 export default function LoginSpid() {
   const [, navigate] = useLocation();
   const [showProviders, setShowProviders] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch lista IdP da API
+  const { data: idpList, isLoading: loadingIdpList } = trpc.spid.idpList.useQuery();
+
+  // Mutation per ottenere URL di autenticazione
+  const getAuthUrlMutation = trpc.spid.getAuthUrl.useMutation({
+    onSuccess: (data) => {
+      toast.info(`Reindirizzamento a ${data.idpName}...`, {
+        description: "Verrai reindirizzato al tuo Identity Provider SPID"
+      });
+      
+      // In produzione, redirect all'URL SPID
+      // window.location.href = data.url;
+      
+      // Per demo, mostra messaggio
+      setTimeout(() => {
+        toast.success("Demo SPID", {
+          description: "In produzione verrai reindirizzato all'IdP selezionato per l'autenticazione SPID."
+        });
+        setSelectedProvider(null);
+        setShowProviders(false);
+      }, 2000);
+    },
+    onError: (error) => {
+      toast.error("Errore", {
+        description: error.message || "Impossibile avviare l'autenticazione SPID"
+      });
+      setSelectedProvider(null);
+    },
+  });
 
   const handleSpidLogin = (providerId: string) => {
     setSelectedProvider(providerId);
-    setIsLoading(true);
-    
-    // In produzione, questo redirect all'IdP SPID selezionato
-    // Per ora simuliamo il flusso
-    setTimeout(() => {
-      // Redirect alla callback SPID (simulato)
-      navigate('/api/spid/login?idp=' + providerId);
-    }, 1000);
+    getAuthUrlMutation.mutate({ 
+      idpId: providerId,
+      returnUrl: window.location.origin + "/dashboard"
+    });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="border-b bg-white/80 backdrop-blur-sm">
         <div className="container flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">C</span>
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+              <span className="text-white font-bold text-lg">C</span>
             </div>
-            <span className="font-semibold text-lg">CertificaLingua</span>
+            <span className="font-semibold text-lg text-slate-900">CertificaLingua</span>
           </Link>
           <Link href="/login">
-            <Button variant="ghost">Accesso Standard</Button>
+            <Button variant="ghost" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Accesso Standard
+            </Button>
           </Link>
         </div>
       </header>
@@ -76,31 +93,31 @@ export default function LoginSpid() {
         <div className="max-w-2xl mx-auto space-y-8">
           {/* Hero */}
           <div className="text-center space-y-4">
-            <Badge variant="outline" className="gap-1 px-3 py-1">
-              <Shield className="h-3 w-3" />
+            <Badge variant="outline" className="gap-1 px-3 py-1 bg-white">
+              <Shield className="h-3 w-3 text-blue-600" />
               Identità Digitale Certificata
             </Badge>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Accedi con <span className="text-primary">SPID</span>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+              Accedi con <span className="text-blue-600">SPID</span>
             </h1>
-            <p className="text-muted-foreground max-w-md mx-auto">
+            <p className="text-slate-600 max-w-md mx-auto">
               Utilizza la tua identità digitale SPID per accedere in modo sicuro 
               alla piattaforma di certificazione linguistica.
             </p>
           </div>
 
           {/* Main Card */}
-          <Card className="border-2">
+          <Card className="border-2 shadow-xl">
             <CardHeader className="text-center pb-2">
-              <div className="mx-auto mb-4 w-20 h-20 rounded-full bg-[#0066CC] flex items-center justify-center">
-                <svg viewBox="0 0 100 100" className="w-12 h-12">
+              <div className="mx-auto mb-4 w-24 h-24 rounded-full bg-[#0066CC] flex items-center justify-center shadow-lg">
+                <svg viewBox="0 0 100 100" className="w-14 h-14">
                   <circle cx="50" cy="50" r="45" fill="white"/>
-                  <text x="50" y="60" textAnchor="middle" fontSize="24" fontWeight="bold" fill="#0066CC">
+                  <text x="50" y="62" textAnchor="middle" fontSize="22" fontWeight="bold" fill="#0066CC">
                     SPID
                   </text>
                 </svg>
               </div>
-              <CardTitle>Sistema Pubblico di Identità Digitale</CardTitle>
+              <CardTitle className="text-xl">Sistema Pubblico di Identità Digitale</CardTitle>
               <CardDescription>
                 Seleziona il tuo Identity Provider per accedere
               </CardDescription>
@@ -111,37 +128,42 @@ export default function LoginSpid() {
                 size="lg"
                 className="w-full h-14 text-lg gap-3 bg-[#0066CC] hover:bg-[#0052A3]"
                 onClick={() => setShowProviders(true)}
+                disabled={loadingIdpList}
               >
-                <Shield className="h-6 w-6" />
+                {loadingIdpList ? (
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                ) : (
+                  <Shield className="h-6 w-6" />
+                )}
                 Entra con SPID
                 <ChevronRight className="h-5 w-5 ml-auto" />
               </Button>
 
               {/* Info */}
               <div className="grid gap-4 pt-4">
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                  <Lock className="h-5 w-5 text-primary mt-0.5" />
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-blue-50 border border-blue-100">
+                  <Lock className="h-5 w-5 text-blue-600 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Autenticazione Sicura</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="font-medium text-sm text-slate-900">Autenticazione Sicura</p>
+                    <p className="text-xs text-slate-600">
                       SPID garantisce la tua identità con il massimo livello di sicurezza
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                  <User className="h-5 w-5 text-primary mt-0.5" />
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-blue-50 border border-blue-100">
+                  <User className="h-5 w-5 text-blue-600 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Dati Verificati</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="font-medium text-sm text-slate-900">Dati Verificati</p>
+                    <p className="text-xs text-slate-600">
                       I tuoi dati anagrafici vengono acquisiti direttamente dal sistema SPID
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                  <Building2 className="h-5 w-5 text-primary mt-0.5" />
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-blue-50 border border-blue-100">
+                  <Building2 className="h-5 w-5 text-blue-600 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">Riconosciuto dal MIM</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="font-medium text-sm text-slate-900">Riconosciuto dal MIM</p>
+                    <p className="text-xs text-slate-600">
                       Requisito per le certificazioni linguistiche valide per concorsi e graduatorie
                     </p>
                   </div>
@@ -151,10 +173,10 @@ export default function LoginSpid() {
           </Card>
 
           {/* Non hai SPID? */}
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertTitle>Non hai ancora SPID?</AlertTitle>
-            <AlertDescription className="space-y-2">
+          <Alert className="bg-white border-amber-200">
+            <Info className="h-4 w-4 text-amber-600" />
+            <AlertTitle className="text-slate-900">Non hai ancora SPID?</AlertTitle>
+            <AlertDescription className="space-y-2 text-slate-600">
               <p>
                 SPID è l'identità digitale pubblica che ti permette di accedere ai servizi 
                 online della Pubblica Amministrazione e dei privati aderenti.
@@ -163,7 +185,7 @@ export default function LoginSpid() {
                 href="https://www.spid.gov.it/cos-e-spid/come-attivare-spid/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-primary hover:underline text-sm font-medium"
+                className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-medium"
               >
                 Scopri come attivare SPID
                 <ExternalLink className="h-3 w-3" />
@@ -172,20 +194,20 @@ export default function LoginSpid() {
           </Alert>
 
           {/* Perché SPID */}
-          <Card>
+          <Card className="bg-white">
             <CardHeader>
-              <CardTitle className="text-lg">Perché è richiesto SPID?</CardTitle>
+              <CardTitle className="text-lg text-slate-900">Perché è richiesto SPID?</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 text-sm text-muted-foreground">
+            <CardContent className="space-y-4 text-sm text-slate-600">
               <p>
-                Il <strong>Decreto Ministeriale n. 62 del 10 marzo 2022</strong> stabilisce 
+                Il <strong className="text-slate-900">Decreto Ministeriale n. 62 del 10 marzo 2022</strong> stabilisce 
                 che gli enti certificatori delle competenze linguistiche devono garantire 
                 la corretta identificazione dei candidati.
               </p>
               <p>
                 L'autenticazione tramite SPID assicura:
               </p>
-              <ul className="list-disc list-inside space-y-1">
+              <ul className="list-disc list-inside space-y-1 ml-2">
                 <li>Verifica certa dell'identità del candidato</li>
                 <li>Acquisizione automatica dei dati anagrafici (nome, cognome, codice fiscale)</li>
                 <li>Conformità ai requisiti normativi per l'accreditamento MIM</li>
@@ -210,24 +232,24 @@ export default function LoginSpid() {
           </DialogHeader>
           
           <div className="grid gap-2 py-4 max-h-[400px] overflow-y-auto">
-            {SPID_PROVIDERS.map((provider) => (
+            {(idpList || []).map((provider) => (
               <Button
                 key={provider.id}
                 variant="outline"
-                className="w-full justify-start h-14 gap-3"
+                className="w-full justify-start h-14 gap-3 hover:bg-blue-50 hover:border-blue-200"
                 onClick={() => handleSpidLogin(provider.id)}
-                disabled={isLoading}
+                disabled={getAuthUrlMutation.isPending}
               >
-                {isLoading && selectedProvider === provider.id ? (
-                  <Loader2 className="h-6 w-6 animate-spin" />
+                {getAuthUrlMutation.isPending && selectedProvider === provider.id ? (
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
                 ) : (
-                  <div className="w-10 h-10 rounded bg-muted flex items-center justify-center text-xs font-bold">
+                  <div className="w-10 h-10 rounded bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
                     {provider.name.charAt(0)}
                   </div>
                 )}
-                <span className="font-medium">{provider.name}</span>
-                {isLoading && selectedProvider === provider.id && (
-                  <span className="ml-auto text-xs text-muted-foreground">
+                <span className="font-medium text-slate-900">{provider.name}</span>
+                {getAuthUrlMutation.isPending && selectedProvider === provider.id && (
+                  <span className="ml-auto text-xs text-slate-500">
                     Connessione...
                   </span>
                 )}
@@ -235,14 +257,14 @@ export default function LoginSpid() {
             ))}
           </div>
 
-          <div className="text-center text-xs text-muted-foreground pt-2 border-t">
+          <div className="text-center text-xs text-slate-500 pt-2 border-t">
             <p>
               Accedendo dichiari di aver letto e accettato i{" "}
-              <Link href="/termini" className="text-primary hover:underline">
+              <Link href="/termini" className="text-blue-600 hover:underline">
                 Termini di Servizio
               </Link>{" "}
               e la{" "}
-              <Link href="/privacy" className="text-primary hover:underline">
+              <Link href="/privacy" className="text-blue-600 hover:underline">
                 Privacy Policy
               </Link>
             </p>

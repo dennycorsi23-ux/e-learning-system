@@ -155,4 +155,17 @@
 - [x] Creare pagina login con form email/password
 - [x] Gestione sessioni JWT
 - [x] Password per admin di test
-- [x] Test autenticazione (40 test passati)
+- [x] Test autenticazione (57 test passati)
+
+## Integrazione SPID Completa (In Corso)
+- [x] Configurazione SPID Service Provider
+- [x] Generazione metadata SP
+- [x] Implementazione flusso SAML 2.0
+- [x] Pagina login SPID con selezione IdP (Poste, Aruba, InfoCert, ecc.)
+- [x] API SPID (idpList, getAuthUrl, validateProfile, saveToProfile)
+- [x] Validazione codice fiscale italiano
+- [x] Estrazione dati da codice fiscale (data nascita, genere)
+- [x] Test SPID (17 test passati)
+- [ ] Gestione callback SAML reale (richiede certificati)
+- [ ] Salvataggio dati SPID nel profilo utente
+- [ ] Verifica identità pre-esame tramite SPID

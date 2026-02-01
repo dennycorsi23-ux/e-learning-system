@@ -7,6 +7,7 @@ import { TRPCError } from "@trpc/server";
 import * as db from "./db";
 import { generateCertificateHTML, generateCertificateNumber, generateVerificationCode } from "./services/certificateGenerator";
 import { loginWithEmailPassword, registerUser, changePassword, setUserPassword } from "./services/authService";
+import { SPID_IDP_LIST, generateSpidAuthnRequest, validateSpidProfileForExam, SpidUserProfile } from "./services/spidService";
 import { SignJWT, jwtVerify } from "jose";
 import { ENV } from "./_core/env";
 
@@ -419,6 +420,123 @@ export const appRouter = router({
       list: adminProcedure.query(async () => {
         return db.getAllExamSessions();
       }),
+    }),
+  }),
+
+  // ============================================
+  // SPID
+  // ============================================
+  spid: router({
+    // Lista degli Identity Provider SPID disponibili
+    idpList: publicProcedure.query(() => {
+      return SPID_IDP_LIST.map(idp => ({
+        id: idp.id,
+        name: idp.name,
+        logoUrl: idp.logoUrl,
+      }));
+    }),
+    
+    // Genera URL per autenticazione SPID
+    getAuthUrl: publicProcedure
+      .input(z.object({
+        idpId: z.string(),
+        returnUrl: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const idp = SPID_IDP_LIST.find(i => i.id === input.idpId);
+        if (!idp) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Identity Provider non valido" });
+        }
+        
+        // In produzione, usare l'URL reale del sito
+        const baseUrl = process.env.SITE_URL || "https://certificalingua.it";
+        const spEntityId = baseUrl;
+        const acsUrl = `${baseUrl}/api/spid/callback`;
+        
+        // Genera la richiesta SAML
+        const authnRequest = generateSpidAuthnRequest(
+          idp.ssoUrl,
+          spEntityId,
+          acsUrl,
+          2 // Livello SPID 2 per certificazioni
+        );
+        
+        // Codifica in Base64
+        const encodedRequest = Buffer.from(authnRequest).toString("base64");
+        
+        // Costruisci URL di redirect
+        const redirectUrl = `${idp.ssoUrl}?SAMLRequest=${encodeURIComponent(encodedRequest)}`;
+        
+        return {
+          url: redirectUrl,
+          idpId: idp.id,
+          idpName: idp.name,
+        };
+      }),
+    
+    // Valida profilo SPID per esame
+    validateProfile: protectedProcedure
+      .input(z.object({
+        spidCode: z.string(),
+        fiscalNumber: z.string(),
+        name: z.string(),
+        familyName: z.string(),
+        dateOfBirth: z.string().optional(),
+        placeOfBirth: z.string().optional(),
+        email: z.string().optional(),
+        gender: z.enum(["M", "F"]).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const profile: SpidUserProfile = {
+          spidCode: input.spidCode,
+          fiscalNumber: input.fiscalNumber,
+          name: input.name,
+          familyName: input.familyName,
+          dateOfBirth: input.dateOfBirth,
+          placeOfBirth: input.placeOfBirth,
+          email: input.email,
+          gender: input.gender,
+        };
+        
+        return validateSpidProfileForExam(profile);
+      }),
+    
+    // Salva dati SPID nel profilo utente
+    saveToProfile: protectedProcedure
+      .input(z.object({
+        spidCode: z.string(),
+        fiscalNumber: z.string(),
+        name: z.string(),
+        familyName: z.string(),
+        dateOfBirth: z.string().optional(),
+        placeOfBirth: z.string().optional(),
+        email: z.string().optional(),
+        gender: z.enum(["M", "F"]).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Aggiorna il profilo utente con i dati SPID
+        await db.updateUser(ctx.user.id, {
+          spidCode: input.spidCode,
+          fiscalCode: input.fiscalNumber,
+          firstName: input.name,
+          lastName: input.familyName,
+          birthDate: input.dateOfBirth ? new Date(input.dateOfBirth) : undefined,
+          birthPlace: input.placeOfBirth,
+          spidVerified: true,
+          spidVerifiedAt: new Date(),
+        });
+        
+        return { success: true };
+      }),
+    
+    // Verifica se l'utente ha SPID verificato
+    checkVerification: protectedProcedure.query(async ({ ctx }) => {
+      const user = await db.getUserById(ctx.user.id);
+      return {
+        verified: user?.spidVerified || false,
+        spidCode: user?.spidCode,
+        verifiedAt: user?.spidVerifiedAt,
+      };
     }),
   }),
 
