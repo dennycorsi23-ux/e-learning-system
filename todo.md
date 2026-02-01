@@ -146,3 +146,15 @@
 - [x] Modificare server per rendere OAuth opzionale
 - [x] Rimuovere errore OAUTH_SERVER_URL non configurato
 - [x] Push correzioni su GitHub
+
+## Funzionalità CRUD Admin (da implementare)
+- [x] CRUD Sedi: form creazione nuova sede
+- [x] CRUD Sedi: modifica sede esistente
+- [x] CRUD Sedi: eliminazione sede
+- [x] CRUD Corsi: form creazione nuovo corso
+- [x] CRUD Corsi: modifica corso esistente
+- [x] CRUD Corsi: eliminazione corso
+- [x] CRUD Esami/Sessioni: form creazione nuova sessione
+- [x] CRUD Esami/Sessioni: modifica sessione esistente
+- [x] CRUD Utenti: form creazione nuovo utente
+- [x] CRUD Utenti: modifica utente esistente

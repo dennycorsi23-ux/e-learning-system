@@ -174,6 +174,31 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         return db.createExamCenter(input);
       }),
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        address: z.string().min(1).optional(),
+        city: z.string().min(1).optional(),
+        province: z.string().min(1).optional(),
+        postalCode: z.string().optional(),
+        region: z.string().optional(),
+        phone: z.string().optional(),
+        email: z.string().email().optional(),
+        maxCapacity: z.number().optional(),
+        hasComputerLab: z.boolean().optional(),
+        supportsRemoteExams: z.boolean().optional(),
+        isActive: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        return db.updateExamCenter(id, data);
+      }),
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        return db.deleteExamCenter(input.id);
+      }),
   }),
 
   // ============================================
@@ -206,6 +231,30 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         return db.createExamSession(input);
+      }),
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        languageId: z.number().optional(),
+        qcerLevelId: z.number().optional(),
+        examCenterId: z.number().optional(),
+        title: z.string().min(1).optional(),
+        description: z.string().optional(),
+        examDate: z.date().optional(),
+        startTime: z.string().optional(),
+        maxParticipants: z.number().optional(),
+        price: z.string().optional(),
+        isRemote: z.boolean().optional(),
+        status: z.enum(["scheduled", "in_progress", "completed", "cancelled"]).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        return db.updateExamSession(id, data as any);
+      }),
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        return db.deleteExamSession(input.id);
       }),
   }),
 
@@ -310,6 +359,9 @@ export const appRouter = router({
     list: publicProcedure.query(async () => {
       return db.getAllCourses();
     }),
+    listAll: adminProcedure.query(async () => {
+      return db.getAllCourses(false); // Include inactive
+    }),
     getById: publicProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
@@ -318,6 +370,41 @@ export const appRouter = router({
     myEnrollments: protectedProcedure.query(async ({ ctx }) => {
       return db.getUserEnrollments(ctx.user.id);
     }),
+    create: adminProcedure
+      .input(z.object({
+        languageId: z.number(),
+        qcerLevelId: z.number(),
+        title: z.string().min(1),
+        description: z.string().optional(),
+        objectives: z.string().optional(),
+        duration: z.number().optional(),
+        price: z.string().optional(),
+        isActive: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        return db.createCourse(input);
+      }),
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        languageId: z.number().optional(),
+        qcerLevelId: z.number().optional(),
+        title: z.string().min(1).optional(),
+        description: z.string().optional(),
+        objectives: z.string().optional(),
+        duration: z.number().optional(),
+        price: z.string().optional(),
+        isActive: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        return db.updateCourse(id, data);
+      }),
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        return db.deleteCourse(input.id);
+      }),
   }),
 
   // ============================================
@@ -377,6 +464,35 @@ export const appRouter = router({
         .query(async ({ input }) => {
           return db.getUserById(input.id);
         }),
+      create: adminProcedure
+        .input(z.object({
+          email: z.string().email(),
+          password: z.string().min(8),
+          name: z.string().min(1),
+          role: z.enum(["user", "admin", "examiner", "student"]),
+          firstName: z.string().optional(),
+          lastName: z.string().optional(),
+          phone: z.string().optional(),
+          fiscalCode: z.string().optional(),
+        }))
+        .mutation(async ({ input }) => {
+          return registerUser(input);
+        }),
+      update: adminProcedure
+        .input(z.object({
+          id: z.number(),
+          name: z.string().optional(),
+          email: z.string().email().optional(),
+          role: z.enum(["user", "admin", "examiner", "student"]).optional(),
+          firstName: z.string().optional(),
+          lastName: z.string().optional(),
+          phone: z.string().optional(),
+          fiscalCode: z.string().optional(),
+        }))
+        .mutation(async ({ input }) => {
+          const { id, ...data } = input;
+          return db.updateUser(id, data);
+        }),
       updateRole: adminProcedure
         .input(z.object({
           userId: z.number(),
@@ -384,6 +500,11 @@ export const appRouter = router({
         }))
         .mutation(async ({ input }) => {
           return db.updateUser(input.userId, { role: input.role });
+        }),
+      delete: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          return db.deleteUser(input.id);
         }),
     }),
     

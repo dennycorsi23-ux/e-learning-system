@@ -246,6 +246,13 @@ export async function updateExamCenter(id: number, data: Partial<typeof examCent
   await db.update(examCenters).set({ ...data, updatedAt: new Date() }).where(eq(examCenters.id, id));
 }
 
+export async function deleteExamCenter(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  // Soft delete - imposta isActive a false invece di eliminare
+  await db.update(examCenters).set({ isActive: false, updatedAt: new Date() }).where(eq(examCenters.id, id));
+}
+
 // ============================================
 // COURSE QUERIES
 // ============================================
@@ -282,6 +289,13 @@ export async function updateCourse(id: number, data: Partial<typeof courses.$inf
   const db = await getDb();
   if (!db) return;
   await db.update(courses).set({ ...data, updatedAt: new Date() }).where(eq(courses.id, id));
+}
+
+export async function deleteCourse(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  // Soft delete - imposta isActive a false
+  await db.update(courses).set({ isActive: false, updatedAt: new Date() }).where(eq(courses.id, id));
 }
 
 // ============================================
@@ -369,6 +383,13 @@ export async function updateExamSession(id: number, data: Partial<typeof examSes
   const db = await getDb();
   if (!db) return;
   await db.update(examSessions).set({ ...data, updatedAt: new Date() }).where(eq(examSessions.id, id));
+}
+
+export async function deleteExamSession(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  // Soft delete - imposta status a cancelled
+  await db.update(examSessions).set({ status: "cancelled", updatedAt: new Date() }).where(eq(examSessions.id, id));
 }
 
 // ============================================
