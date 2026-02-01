@@ -193,3 +193,8 @@
 - [x] 20 domande Reading C2 con testi appropriati
 - [x] Compiti Writing B2, C1, C2 con prompt dettagliati
 - [x] Struttura Speaking B2, C1, C2 con domande esaminatore
+
+## Bug Fix Demo Prove (01/02/2026)
+- [ ] Correggere pagina DemoProva: mostra "Domanda 1 di 0" invece delle domande reali
+- [ ] Verificare formato JSON nel database e parsing nel frontend
+- [ ] Aggiungere menu dropdown nella navbar per navigazione completa

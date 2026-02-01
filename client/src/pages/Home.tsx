@@ -22,6 +22,15 @@ import {
   Clock
 } from "lucide-react";
 import { Link } from "wouter";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import { Menu, ChevronDown } from "lucide-react";
 
 const qcerLevels = [
   { code: "A1", name: "Principiante", color: "bg-emerald-500", description: "Comprende e usa espressioni familiari di uso quotidiano" },
@@ -73,26 +82,92 @@ export default function Home() {
             <span className="text-xl font-bold">CertificaLingua</span>
           </Link>
           
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/certificazioni" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Certificazioni
-            </Link>
-            <Link href="/esami" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Sessioni d'Esame
-            </Link>
-            <Link href="/sedi" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Sedi
-            </Link>
-            <Link href="/prezzi" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Prezzi
-            </Link>
+          <nav className="hidden md:flex items-center gap-4">
+            {/* Dropdown Certificazioni */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Certificazioni <ChevronDown className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuLabel>Per Lingua</DropdownMenuLabel>
+                <DropdownMenuItem asChild><Link href="/certificazioni?lang=inglese">Inglese</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/certificazioni?lang=francese">Francese</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/certificazioni?lang=spagnolo">Spagnolo</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/certificazioni?lang=tedesco">Tedesco</Link></DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Per Livello QCER</DropdownMenuLabel>
+                <DropdownMenuItem asChild><Link href="/certificazioni?level=A1">A1 - Principiante</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/certificazioni?level=A2">A2 - Elementare</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/certificazioni?level=B1">B1 - Intermedio</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/certificazioni?level=B2">B2 - Intermedio Superiore</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/certificazioni?level=C1">C1 - Avanzato</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/certificazioni?level=C2">C2 - Padronanza</Link></DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild><Link href="/certificazioni">Tutte le Certificazioni</Link></DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            {/* Dropdown Esami */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Esami <ChevronDown className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem asChild><Link href="/esami">Sessioni d'Esame</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/sedi">Sedi Accreditate</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/esempi-prove">Esempi di Prove</Link></DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild><Link href="/prezzi">Prezzi e Tariffe</Link></DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            {/* Dropdown Risorse */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Risorse <ChevronDown className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem asChild><Link href="/esempi-prove">Esempi di Prove</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/faq">Domande Frequenti</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/verifica">Verifica Attestato</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/contatti">Contattaci</Link></DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
             <Link href="/verifica" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Verifica Attestato
             </Link>
-            <Link href="/faq" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              FAQ
-            </Link>
           </nav>
+          
+          {/* Mobile Menu */}
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Certificazioni</DropdownMenuLabel>
+                <DropdownMenuItem asChild><Link href="/certificazioni">Tutte le Certificazioni</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/certificazioni?lang=inglese">Inglese</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/certificazioni?lang=francese">Francese</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/certificazioni?lang=spagnolo">Spagnolo</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/certificazioni?lang=tedesco">Tedesco</Link></DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Esami</DropdownMenuLabel>
+                <DropdownMenuItem asChild><Link href="/esami">Sessioni d'Esame</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/sedi">Sedi Accreditate</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/esempi-prove">Esempi di Prove</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/prezzi">Prezzi</Link></DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Risorse</DropdownMenuLabel>
+                <DropdownMenuItem asChild><Link href="/faq">FAQ</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/verifica">Verifica Attestato</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/contatti">Contattaci</Link></DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           
           <div className="flex items-center gap-3">
             <Link href="/login">

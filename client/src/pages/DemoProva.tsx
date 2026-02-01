@@ -145,12 +145,27 @@ export default function DemoProva() {
   const getAllQuestions = (): Question[] => {
     if (!content) return [];
     
-    if (content.questions) {
+    // Check for questions directly in content
+    if (content.questions && content.questions.length > 0) {
       return content.questions;
     }
     
-    if (content.passages) {
-      return content.passages.flatMap(p => p.questions);
+    // Check for questions inside parts (listening/reading format)
+    if (content.parts && Array.isArray(content.parts)) {
+      const allQuestions: Question[] = [];
+      content.parts.forEach((part: any) => {
+        if (part.questions && Array.isArray(part.questions)) {
+          allQuestions.push(...part.questions);
+        }
+      });
+      if (allQuestions.length > 0) {
+        return allQuestions;
+      }
+    }
+    
+    // Check for questions inside passages (reading format)
+    if (content.passages && Array.isArray(content.passages)) {
+      return content.passages.flatMap((p: any) => p.questions || []);
     }
     
     return [];

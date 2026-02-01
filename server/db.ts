@@ -868,3 +868,58 @@ export async function reorderAdminMenuItems(items: { id: number; sortOrder: numb
   }
   return { success: true };
 }
+
+
+// ============================================
+// SESSION DOCUMENTS QUERIES
+// ============================================
+
+export async function getExamSessionsCountByYear(year: number) {
+  const db = await getDb();
+  if (!db) return 0;
+  const startOfYear = new Date(year, 0, 1);
+  const endOfYear = new Date(year, 11, 31);
+  const [result] = await db.select({ count: sql<number>`count(*)` }).from(examSessions)
+    .where(and(
+      sql`${examSessions.examDate} >= ${startOfYear}`,
+      sql`${examSessions.examDate} <= ${endOfYear}`
+    ));
+  return result?.count || 0;
+}
+
+export async function getExaminers() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(users).where(eq(users.role, 'examiner'));
+}
+
+export async function getSessionDocuments(sessionId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const result = await db.execute(sql`SELECT * FROM session_documents WHERE sessionId = ${sessionId} ORDER BY uploadedAt DESC`);
+  return result[0] as any[];
+}
+
+export async function createSessionDocument(data: {
+  sessionId: number;
+  fileName: string;
+  fileUrl: string;
+  fileType?: string;
+  fileSize?: number;
+  uploadedBy?: number;
+}) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.execute(sql`
+    INSERT INTO session_documents (sessionId, fileName, fileUrl, fileType, fileSize, uploadedBy)
+    VALUES (${data.sessionId}, ${data.fileName}, ${data.fileUrl}, ${data.fileType || null}, ${data.fileSize || null}, ${data.uploadedBy || null})
+  `);
+  return { id: (result[0] as any).insertId };
+}
+
+export async function deleteSessionDocument(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  await db.execute(sql`DELETE FROM session_documents WHERE id = ${id}`);
+  return { id };
+}
