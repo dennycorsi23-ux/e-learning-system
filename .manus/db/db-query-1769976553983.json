@@ -1,0 +1,29 @@
+{
+  "query": "SHOW CREATE TABLE sample_exams;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2LPqHmqLVho9QZg.95ce027799d6 --database L93MYh3XUxpcggxEzoazYj --execute SHOW CREATE TABLE sample_exams;",
+  "rows": [
+    {
+      "Table": "sample_exams",
+      "Create Table": "CREATE TABLE `sample_exams` ("
+    }
+  ],
+  "messages": [
+    "  `id` int(11) NOT NULL AUTO_INCREMENT,",
+    "  `languageId` int(11) NOT NULL,",
+    "  `qcerLevelId` int(11) NOT NULL,",
+    "  `skill` enum('listening','reading','writing','speaking') COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `title` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `content` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `audioUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `pdfUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `isActive` tinyint(1) DEFAULT '1',",
+    "  `displayOrder` int(11) DEFAULT '0',",
+    "  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,",
+    "  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */",
+    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+  ],
+  "stdout": "Table\tCreate Table\nsample_exams\tCREATE TABLE `sample_exams` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `languageId` int(11) NOT NULL,\n  `qcerLevelId` int(11) NOT NULL,\n  `skill` enum('listening','reading','writing','speaking') COLLATE utf8mb4_unicode_ci NOT NULL,\n  `title` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `content` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `audioUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `pdfUrl` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `isActive` tinyint(1) DEFAULT '1',\n  `displayOrder` int(11) DEFAULT '0',\n  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci\n",
+  "stderr": "",
+  "execution_time_ms": 139
+}
